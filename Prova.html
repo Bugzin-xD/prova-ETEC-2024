@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prova Interativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            max-width: 800px;
+            width: 100%;
+            margin-top: 2rem;
+        }
+        .question-block {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .question-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #cbd5e0;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-label:hover {
+            background-color: #f7fafc;
+            border-color: #a0aec0;
+        }
+        .option-label input[type="radio"] {
+            margin-right: 0.75rem;
+            cursor: pointer;
+        }
+        .submit-button {
+            background-color: #4299e1;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            width: 100%;
+            border: none;
+            margin-top: 2rem;
+        }
+        .submit-button:hover {
+            background-color: #3182ce;
+        }
+        .result-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .correct-answer {
+            background-color: #d4edda; /* Light green */
+            border-color: #28a745; /* Green */
+        }
+        .incorrect-answer {
+            background-color: #f8d7da; /* Light red */
+            border-color: #dc3545; /* Red */
+        }
+        .correct-feedback {
+            color: #28a745; /* Green */
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+        .incorrect-feedback {
+            color: #dc3545; /* Red */
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+        .score-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #2d3748;
+        }
+        .image-container {
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .image-caption {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Prova de Vestibulinho 1º SEM/2024</h1>
+        <div id="quiz-container">
+            <!-- Questions will be loaded here by JavaScript -->
+        </div>
+        <button id="submit-quiz" class="submit-button">Finalizar Prova e Ver Resultados</button>
+        <div id="results" class="result-section hidden">
+            <h2 class="text-2xl font-bold text-center mb-4">Seus Resultados</h2>
+            <div id="score-summary" class="score-display"></div>
+            <div id="detailed-results">
+                <!-- Detailed results will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array de objetos de questões com pergunta, opções e resposta correta
+        const questions = [
+            {
+                id: '01',
+                question: 'Com base no texto e com o auxílio do mapa, é correto afirmar que',
+                options: {
+                    A: 'a Amazônia Internacional é administrada pelo Instituto Brasileiro de Geografia e Estatística (IBGE).',
+                    B: 'os estados da Região Norte do Brasil estão totalmente inseridos na Amazônia Legal.',
+                    C: 'o estado do Maranhão, por pertencer à Região Norte, faz parte da Amazônia Legal.',
+                    D: 'a bacia hidrográfica do Amazonas engloba todos os rios da América do Sul.',
+                    E: 'o Bioma Amazônia se estende da Venezuela até o sul da Argentina.'
+                },
+                correctAnswer: 'B',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Mapa+da+Amazônia',
+                imageCaption: 'Mapa da Amazônia Internacional, Região Norte e Amazônia Legal'
+            },
+            {
+                id: '02',
+                question: 'A Amazônia Legal',
+                options: {
+                    A: 'abrange todos os estados da Região Centro-Oeste do Brasil.',
+                    B: 'localiza-se totalmente no hemisfério sul da Terra.',
+                    C: 'engloba a maior parte do Bioma Amazônia.',
+                    D: 'inclui todas as reservas indígenas existentes no Brasil.',
+                    E: 'avança sobre o polígono das secas, no Nordeste brasileiro.'
+                },
+                correctAnswer: 'C',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Mapa+da+Amazônia',
+                imageCaption: 'Mapa da Amazônia Internacional, Região Norte e Amazônia Legal'
+            },
+            {
+                id: '03',
+                question: 'Apesar de ser um maciço florestal contínuo, a Floresta Amazônica, por sua grande extensão, é composta por estratos, cada um com características que os diferenciam uns dos outros.<br>Ela está subdividida em',
+                options: {
+                    A: 'floresta aciculifoliada, mata de transição e mata ciliar.',
+                    B: 'mata de igapó, mata de várzea e mata de terra firme.',
+                    C: 'restinga, campos limpos e mata dos cocais.',
+                    D: 'pantanal, cerrado e floresta de araucária.',
+                    E: 'caatinga, campos sujos e manguezais.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '04',
+                question: 'Considerando o tipo de vegetação, é correto afirmar que o Bioma Amazônia se caracteriza, principalmente, por apresentar',
+                options: {
+                    A: 'gramíneas e plantas arbustivas; árvores de pequeno e médio porte, com folhas transformadas em espinhos para diminuir a transpiração e caules suculentos que armazenam água.',
+                    B: 'plantas, que se desenvolvem em solos lamacentos e salgados, com troncos finos, cujas raízes se adaptam à fixação e se elevam à superfície para permitir a respiração.',
+                    C: 'plantas herbáceas e arbustivas que compõem os campos; árvores de médio porte, geralmente com troncos grossos e retorcidos, folhas de superfície reduzida e raízes profundas.',
+                    D: 'árvores de médio e grande porte, com folhas largas e perenes; vários tipos de flores e frutos; além de diversos tipos de arbustos, trepadeiras, cipós e planta epífitas.',
+                    E: 'gramíneas; plantas herbáceas; leguminosas; algumas árvores de pequeno porte; além da presença de matas ciliares e algumas árvores decíduas.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '05',
+                question: 'Segundo a letra da canção,',
+                options: {
+                    A: 'a falta de mobilização dos povos originários para proteger os biomas mencionados resulta do curto período de convivência com a floresta.',
+                    B: 'a destruição da Floresta Amazônica gera prejuízos à vida animal e à vegetal, amenizando os impactos na vida e na cultura daqueles que a habitam.',
+                    C: 'os povos originários aliaram-se recentemente aos guardiões da floresta, quando houve um recrudescimento trágico do desmatamento.',
+                    D: 'a Amazônia é alvo de exploração pelo caráter único de suas riquezas, ação facilitada pela ausência de medidas efetivas de proteção.',
+                    E: 'os ataques à Floresta Amazônica, além de esporádicos, acarretam consequências reversíveis e restritas à fauna local.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '06',
+                question: 'Sobre os recursos gramaticais utilizados na construção do texto, é correto afirmar que',
+                options: {
+                    A: 'os termos "porém" (v. 5), "pois" (v. 8) e "todavia" (v. 9) têm o mesmo sentido.',
+                    B: 'os pronomes "seus" (v. 24) e "eles" (v. 25) se referem à mesma ideia, mencionada anteriormente no texto.',
+                    C: 'os dois-pontos, utilizados nos versos 4 e 9, introduzem uma justificativa para os fatos apresentados.',
+                    D: 'o vocábulo "que", nos versos 7 e 8, retoma "mundo" e "vida" respectivamente.',
+                    E: 'os pronomes "seu" (v. 17) e "deles" (v. 21) antecipam uma informação posteriormente apresentada no texto.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '07',
+                question: 'Na letra dessa canção, ocorre',
+                options: {
+                    A: 'metáfora no trecho "contra trator, corrente, motosserra", verso 03, pois os objetos listados simbolizam a superação da floresta contra as ameaças externas.',
+                    B: 'antítese entre "beleza" e "valor", verso 6, pois são termos de sentido oposto.',
+                    C: 'paronomásia no excerto "tanta insânia e tanta insônia", verso 12, pois se aproximam termos com sons semelhantes e sentidos diferentes.',
+                    D: 'paradoxo em "nos últimos e trágicos decênios", verso 19, pois o conceito de "trágico" anula a ideia de novidade, expressa pelo termo "últimos".',
+                    E: 'personificação na passagem "eles não pensam", verso 25, pois se atribui a capacidade de pensar a seres inanimados.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '08',
+                question: 'Nos rios que cortam a Floresta Amazônica, são encontradas várias espécies de vertebrados, como, por exemplo, o pirarucu, o poraquê (peixe elétrico), a arraia (ou raia), o tucunaré, o peixe-boi e o boto-cor-de-rosa. Este último é conhecido por ser personagem de uma lenda do folclore brasileiro.<br>Com relação a todos os animais citados, é correto afirmar que',
+                options: {
+                    A: 'realizam as trocas gasosas por meio de um par de pulmões do tipo alveolar com paredes muito delgadas.',
+                    B: 'conseguem manter a temperatura corporal constante apesar de alterações da temperatura ambiental.',
+                    C: 'dependem de oxigênio, que é usado na oxidação de moléculas orgânicas, como a glicose, a fim de obter energia.',
+                    D: 'apresentam fecundação externa, com desenvolvimento indireto por meio de fase larval, seguida de metamorfose.',
+                    E: 'possuem bexiga natatória, que é um órgão responsável pela manutenção do equilíbrio hidrostático.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '09',
+                question: 'De acordo com o texto, é correto afirmar que',
+                options: {
+                    A: 'a floresta Amazônica brasileira tem 670 milhões de hectares.',
+                    B: 'a maior floresta tropical do mundo está localizada totalmente em território brasileiro.',
+                    C: 'o Brasil pode comprar créditos de carbono para custear a Floresta Amazônica.',
+                    D: 'países que emitem gases do efeito estufa em excesso podem adquirir créditos de carbono como forma de compensação.',
+                    E: 'cada tonelada de gases do efeito estufa não emitida, como dióxido de carbono e metano, equivale a 1 crédito de carbono.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '10',
+                question: 'Considere os números destacados em negrito no texto e assinale a alternativa que apresenta, em notação científica, o seu produto.',
+                options: {
+                    A: '$1,0\\times10^{14}$',
+                    B: '$1,0\\times10^{13}$',
+                    C: '$1.0\\times10^{12}$',
+                    D: '$1,0\\times10^{11}$',
+                    E: '$1,0\\times10^{10}$'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '11',
+                question: 'De acordo com o texto, a quantidade de créditos de carbono gerada pela parte brasileira da Floresta Amazônica seria, aproximadamente, de',
+                options: {
+                    A: '402 milhões.',
+                    B: '402 bilhões.',
+                    C: '670 milhões.',
+                    D: '12 060 bilhões.',
+                    E: '12 060 milhões.'
+                },
+                correctAnswer: 'E'
+            },
+            {
+                id: '12',
+                question: 'O mapa representa diferentes movimentos de ocupação de parte da América do Sul, cujo território foi disputado por Espanha e Portugal nos dois primeiros séculos da colonização europeia.<br>De acordo com a representação, é correto afirmar que',
+                options: {
+                    A: 'as missões jesuíticas não só demarcavam os limites entre as possessões espanhola e portuguesa, mas também garantiam a posse da Amazônia para a Espanha.',
+                    B: 'a ocupação da América Portuguesa ocorreu na costa atlântica, em detrimento da região da Amazônia, que permaneceu despovoada até o final do século XVII.',
+                    C: 'a integração da Amazônia ao território da colônia portuguesa está relacionada à presença de missões jesuíticas e de expedições para escravização de indígenas.',
+                    D: 'as expedições de apresamento se estabeleceram na Amazônia Espanhola, e, de lá, partiram para o leste a fim de escravizar os indígenas que viviam na colônia portuguesa.',
+                    E: 'a presença de missões jesuíticas portuguesas na Amazônia indica que essa região pertencia a Portugal, de acordo com os tratados internacionais vigentes no período colonial.'
+                },
+                correctAnswer: 'C',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Mapa+Expedições+Bandeirantes',
+                imageCaption: 'Mapa: Expedições Bandeirantes (1550-1720)'
+            },
+            {
+                id: '13',
+                question: 'Suponha que um caçador mal-intencionado seja perseguido pelo Curupira. Ele parte de um ponto P na floresta, caminha 6 km a leste e 16 km para sul, quando percebe que está em uma clareira. Para sair da floresta, ele então caminha 10 km para leste e 4 km para o norte, chegando ao acampamento A.<br>Logo, é correto afirmar que a distância (em linha reta), em quilômetros, entre o ponto P e o acampamento A, é igual a',
+                options: {
+                    A: '18.',
+                    B: '20.',
+                    C: '26.',
+                    D: '28.',
+                    E: '32.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '14',
+                question: 'Com base no texto, o gênero textual abordado cumpre a função social de',
+                options: {
+                    A: 'colocar em destaque a revolução promovida pela tecnologia digital, já que essa mudança padroniza e limita a forma de aprender do estudante.',
+                    B: 'debater sobre os movimentos migratórios, cada vez maiores no nosso país, os quais prejudicam o surgimento de culturas novas na sociedade.',
+                    C: 'discutir as mudanças no núcleo familiar devido à dedicação exclusiva dos responsáveis a atividades profissionais, prejudicando a comunicação com as gerações mais jovens.',
+                    D: 'valorizar as identidades construídas ao longo do tempo, ao perceber que muitas pessoas passaram pelo mundo, deixando ensinamentos e experiências.',
+                    E: 'visualizar as mudanças laborais, uma vez que está cada vez mais fácil conseguir um trabalho formal na área de caça, pesca e apreensão de animais em áreas protegidas.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '15',
+                question: 'De acordo com o texto, os ensinamentos e as histórias dos povos da Região Amazônica são transmitidos por meio de fontes',
+                options: {
+                    A: 'escritas.',
+                    B: 'iconográficas.',
+                    C: 'materiais.',
+                    D: 'orais.',
+                    E: 'arqueológicas.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '16',
+                question: 'A formação da imagem da Lua, vista por Naiá, é justificada pelo fenômeno óptico da',
+                options: {
+                    A: 'refração da luz, proveniente da Lua, no fundo do lago.',
+                    B: 'ilusão de óptica criada pelo movimento das águas do lago.',
+                    C: 'reflexão dos raios de luz, provenientes da Lua, pela superfície do lago.',
+                    D: 'absorção dos raios de luz, provenientes da Lua, pela superfície do lago.',
+                    E: 'projeção holográfica dos raios de luz, provenientes da Lua, na superfície do lago.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '17',
+                question: 'A capacidade de flutuação das folhas da vitória-régia é resultado de diversas adaptações evolutivas para sobreviver em ambientes aquáticos: a forma circular contribui para que haja uma distribuição uniforme do peso e, principalmente, suas folhas têm uma série de compartimentos cheios de ar nos tecidos vegetais, o que as ajuda a manter sua flutuação.<br>Essas adaptações podem ser comparadas ao uso de',
+                options: {
+                    A: 'pés de pato por mergulhadores.',
+                    B: 'sinalizadores em barcos de passeio.',
+                    C: 'toucas de natação por competidores olímpicos.',
+                    D: 'coletes salva-vidas infláveis por pessoas que não sabem nadar.',
+                    E: 'roupas de neoprene por surfistas durante as competições no mar.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '18',
+                question: 'No final do século XIX, eclodiu uma rebelião no Acre, que se prolongou por alguns anos e, ante a ameaça de uma intervenção direta do governo brasileiro, foi firmado o Tratado de Petrópolis entre os governos da Bolívia e do Brasil, em 1903. Foi por isso que a Bolívia cedeu o território do Acre ao Brasil em troca de dois milhões de libras esterlinas; e o governo brasileiro se comprometeu a construir a estrada de ferro Madeira - Mamoré.<br>Sobre esse estado da federação, é correto afirmar que nele se encontra o ponto',
+                options: {
+                    A: 'central Geodésico do território brasileiro, localizado em sua capital.',
+                    B: 'mais ocidental do território brasileiro, a nascente do Rio Moa.',
+                    C: 'mais setentrional do território brasileiro, a nascente do Rio Ailā.',
+                    D: 'mais oriental do território brasileiro, a Ponta do Seixas.',
+                    E: 'mais meridional do território brasileiro, o Arroio Chuí.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '19',
+                question: 'Segundo o texto,',
+                options: {
+                    A: 'os anciões indígenas decidiram expor seus conhecimentos por meio de ideogramas devido à limitação cultural dos não indígenas.',
+                    B: 'o povo Yanomami garante bem-estar social duradouro para as próximas gerações ao seguir os padrões de vida dos brancos.',
+                    C: 'a exploração da caça e da pesca realizada pelos Yanomami é fruto do contato com o saber trazido pelos brancos colonizadores.',
+                    D: 'a forma de divulgação da cultura dos povos originários para o restante da sociedade deve restringir-se à oralidade.',
+                    E: 'o equilíbrio na relação entre natureza e homem é base e garantia da manutenção da cultura Yanomami.'
+                },
+                correctAnswer: 'E'
+            },
+            {
+                id: '20',
+                question: 'Assinale a alternativa que apresenta uma reescrita correta e coerente do trecho sublinhado no texto.',
+                options: {
+                    A: 'Acredito que, caso vivamos em cidades, seríamos infelizes, já que haveria o fim da floresta e, então, não deixarão lugar onde poderemos viver distante deles.',
+                    B: 'Como fomos viver em cidades, somos infelizes, pois os brancos acabam com a floresta e não deixaram lugar onde pudéssemos viver distante deles.',
+                    C: 'E reconheço que, caso fôssemos viver em suas cidades, seríamos infelizes; eles acabariam, pois, com a floresta e não deixariam lugar onde pudéssemos viver distante deles.',
+                    D: 'Ainda que fôssemos viver nas cidades dos brancos, não seremos felizes, pois eles acabaram com a floresta e não deixariam lugar onde poderíamos viver distante deles.',
+                    E: 'Afirmo até que, ao irmos viver nas cidades, seremos infelizes, posto que eles acabam com a floresta e não deixam lugar onde pudemos viver distante deles.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '21',
+                question: 'A fala do indígena Davi Kopenawa expressa um ponto de vista que',
+                options: {
+                    A: 'reforça a ideia de que a cultura dos povos originários deve ser preservada e valorizada.',
+                    B: 'defende a integração cultural entre indígenas e não indígenas, visando ao progresso.',
+                    C: 'critica a postura dos povos originários em relação ao uso de recursos naturais.',
+                    D: 'sugere que a tecnologia é a única solução para os problemas ambientais.',
+                    E: 'propõe que os não indígenas devem aprender a caçar e plantar para sobreviver.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '22',
+                question: 'A frase "Hoje, os brancos acham que deveríamos imitá-los em tudo." (1º parágrafo) pode ser reescrita, sem alteração de sentido, como:',
+                options: {
+                    A: 'Atualmente, os brancos pensam que os indígenas deveriam imitá-los em tudo.',
+                    B: 'Na atualidade, os brancos consideram que os indígenas devem imitá-los em tudo.',
+                    C: 'Hodiernamente, os brancos supõem que os indígenas deveriam imitá-los em tudo.',
+                    D: 'Presentemente, os brancos creem que os indígenas deveriam imitá-los em tudo.',
+                    E: 'Contemporaneamente, os brancos acreditam que os indígenas deveriam imitá-los em tudo.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '23',
+                question: 'O texto “A queda do céu” foi escrito em coautoria por Davi Kopenawa, um xamã e líder político yanomami, e Bruce Albert, um antropólogo francês.<br>A partir dessa informação, é correto afirmar que a coautoria de um livro',
+                options: {
+                    A: 'garante que o texto seja imparcial e objetivo.',
+                    B: 'pode enriquecer a obra com diferentes perspectivas.',
+                    C: 'é um processo simples e rápido de produção textual.',
+                    D: 'limita a criatividade dos autores envolvidos.',
+                    E: 'impede a publicação da obra em diferentes idiomas.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '24',
+                question: 'Ainda que o texto não mencione a língua falada pelos Yanomami, é correto afirmar que, no Brasil, a maioria das línguas indígenas pertence a dois grandes troncos linguísticos: o Tupi e o Macro-Jê.<br>A língua portuguesa, por sua vez, pertence ao tronco linguístico',
+                options: {
+                    A: 'indo-europeu.',
+                    B: 'afro-asiático.',
+                    C: 'sino-tibetano.',
+                    D: 'dravídico.',
+                    E: 'urálico.'
+                },
+                correctAnswer: 'A'
+            },
+            {
+                id: '25',
+                question: 'O texto de Davi Kopenawa e Bruce Albert apresenta uma crítica à forma como os "brancos" se relacionam com a natureza.<br>Essa crítica se baseia na ideia de que os "brancos"',
+                options: {
+                    A: 'promovem a sustentabilidade ambiental.',
+                    B: 'valorizam a diversidade cultural.',
+                    C: 'buscam o equilíbrio ecológico.',
+                    D: 'exploram os recursos naturais de forma predatória.',
+                    E: 'respeitam os conhecimentos tradicionais.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '26',
+                question: 'A imagem a seguir mostra uma representação artística da deusa grega da justiça, Têmis, que geralmente aparece com os olhos vendados, segurando uma balança e uma espada.<br>A venda nos olhos de Têmis significa que a justiça',
+                options: {
+                    A: 'é cega para as diferenças sociais.',
+                    B: 'não deve ser influenciada por emoções.',
+                    C: 'é imparcial e objetiva.',
+                    D: 'não pode ser vista pelos homens.',
+                    E: 'é divina e inatingível.'
+                },
+                correctAnswer: 'E',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Têmis',
+                imageCaption: 'Representação artística da deusa grega da justiça, Têmis'
+            },
+            {
+                id: '27',
+                question: 'A balança que Têmis segura simboliza',
+                options: {
+                    A: 'a igualdade entre todos os cidadãos.',
+                    B: 'o equilíbrio entre o bem e o mal.',
+                    C: 'a ponderação das provas e argumentos.',
+                    D: 'a punição dos culpados.',
+                    E: 'a recompensa dos inocentes.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '28',
+                question: 'A espada que Têmis segura representa',
+                options: {
+                    A: 'a força da lei.',
+                    B: 'a proteção dos direitos.',
+                    C: 'a defesa da sociedade.',
+                    D: 'a imposição da ordem.',
+                    E: 'o poder de execução da justiça.'
+                },
+                correctAnswer: 'E'
+            },
+            {
+                id: '29',
+                question: 'A justiça, em seu sentido mais amplo, pode ser definida como',
+                options: {
+                    A: 'a aplicação das leis de forma rigorosa.',
+                    B: 'a busca pela equidade e pelo bem comum.',
+                    C: 'a punição dos crimes e delitos.',
+                    D: 'a defesa dos interesses individuais.',
+                    E: 'a manutenção da ordem social.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '30',
+                question: 'A imagem de Têmis é frequentemente utilizada como símbolo em tribunais e instituições jurídicas.<br>Isso ocorre porque ela representa',
+                options: {
+                    A: 'a imparcialidade da lei.',
+                    B: 'a autoridade do Estado.',
+                    C: 'a sabedoria dos juízes.',
+                    D: 'a proteção dos cidadãos.',
+                    E: 'a busca pela verdade.'
+                },
+                correctAnswer: 'E'
+            },
+            {
+                id: '31',
+                question: 'O texto a seguir apresenta uma reflexão sobre a importância da água.<br>O ciclo da água, representado na imagem, é um processo natural que',
+                options: {
+                    A: 'garante a renovação da água no planeta.',
+                    B: 'é responsável pela formação das chuvas ácidas.',
+                    C: 'causa o aumento do nível dos oceanos.',
+                    D: 'contribui para a desertificação das áreas.',
+                    E: 'provoca a diminuição da umidade do ar.'
+                },
+                correctAnswer: 'A',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Ciclo+da+Água',
+                imageCaption: 'Diagrama do ciclo da água'
+            },
+            {
+                id: '32',
+                question: 'A agricultura é a atividade humana que mais consome água no mundo.<br>Para reduzir o consumo de água na agricultura, uma medida eficaz seria',
+                options: {
+                    A: 'o uso de sistemas de irrigação por aspersão.',
+                    B: 'a prática da agricultura de sequeiro.',
+                    C: 'a utilização de técnicas de irrigação por gotejamento.',
+                    D: 'o cultivo de plantas que necessitam de muita água.',
+                    E: 'a ampliação das áreas de cultivo em regiões áridas.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '33',
+                question: 'A escassez de água é um problema que afeta milhões de pessoas em todo o mundo.<br>Uma das principais causas da escassez de água é',
+                options: {
+                    A: 'o aumento da cobertura vegetal.',
+                    B: 'a diminuição da população mundial.',
+                    C: 'o uso racional da água.',
+                    D: 'a poluição dos rios e lagos.',
+                    E: 'a reciclagem de resíduos sólidos.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '34',
+                question: 'A reutilização da água é uma medida importante para garantir a sustentabilidade hídrica.<br>Um exemplo de reutilização da água é',
+                options: {
+                    A: 'a captação de água da chuva para consumo humano.',
+                    B: 'o uso de água de reuso para irrigação de jardins.',
+                    C: 'o tratamento de esgoto para descarte em rios.',
+                    D: 'a dessalinização da água do mar para consumo.',
+                    E: 'a perfuração de poços artesianos para abastecimento.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '35',
+                question: 'A pegada hídrica é um indicador que mede o volume total de água doce utilizado para produzir bens e serviços.<br>Para reduzir a pegada hídrica, uma ação que pode ser adotada é',
+                options: {
+                    A: 'o consumo de produtos importados.',
+                    B: 'a compra de roupas de fast fashion.',
+                    C: 'a preferência por alimentos orgânicos.',
+                    D: 'o descarte inadequado de lixo.',
+                    E: 'o uso excessivo de energia elétrica.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '36',
+                question: 'O texto a seguir apresenta informações sobre a importância da energia solar.<br>A energia solar é uma fonte de energia renovável porque',
+                options: {
+                    A: 'utiliza recursos que se esgotam na natureza.',
+                    B: 'é gerada a partir da queima de combustíveis fósseis.',
+                    C: 'depende da luz do sol, que é um recurso ilimitado.',
+                    D: 'causa impacto ambiental significativo.',
+                    E: 'contribui para o aumento da poluição.'
+                },
+                correctAnswer: 'C',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Painéis+Solares',
+                imageCaption: 'Painéis solares'
+            },
+            {
+                id: '37',
+                question: 'Os painéis solares, representados na imagem, são responsáveis por',
+                options: {
+                    A: 'converter a luz solar em energia térmica.',
+                    B: 'armazenar a energia solar para uso posterior.',
+                    C: 'transformar a energia solar em energia elétrica.',
+                    D: 'refletir a luz solar para aquecer a água.',
+                    E: 'concentrar a luz solar em um único ponto.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '38',
+                question: 'A intermitência na geração de energia solar é um desafio porque',
+                options: {
+                    A: 'a luz solar não está disponível 24 horas por dia.',
+                    B: 'os painéis solares são caros e de difícil instalação.',
+                    C: 'a energia solar não pode ser armazenada.',
+                    D: 'a demanda por energia é constante.',
+                    E: 'a tecnologia solar é pouco desenvolvida.'
+                },
+                correctAnswer: 'A'
+            },
+            {
+                id: '39',
+                question: 'Para superar o desafio da intermitência na geração de energia solar, uma solução seria',
+                options: {
+                    A: 'o uso de baterias para armazenar a energia.',
+                    B: 'a construção de usinas termelétricas.',
+                    C: 'a dependência de fontes de energia não renováveis.',
+                    D: 'a redução do consumo de energia.',
+                    E: 'a importação de energia de outros países.'
+                },
+                correctAnswer: 'A'
+            },
+            {
+                id: '40',
+                question: 'A energia solar contribui para a redução do efeito estufa porque',
+                options: {
+                    A: 'emite gases poluentes na atmosfera.',
+                    B: 'não emite gases poluentes na atmosfera.',
+                    C: 'aumenta a temperatura do planeta.',
+                    D: 'consome grandes quantidades de água.',
+                    E: 'depende da queima de combustíveis fósseis.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '41',
+                question: 'O texto a seguir apresenta informações sobre a importância da alimentação saudável.<br>A alimentação saudável é importante para',
+                options: {
+                    A: 'o aumento do peso corporal.',
+                    B: 'a diminuição da energia.',
+                    C: 'a prevenção de doenças.',
+                    D: 'a piora do humor.',
+                    E: 'o consumo de alimentos processados.'
+                },
+                correctAnswer: 'C',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Alimentação+Saudável',
+                imageCaption: 'Alimentos saudáveis'
+            },
+            {
+                id: '42',
+                question: 'As vitaminas e os minerais, presentes em frutas, verduras e legumes, são importantes porque',
+                options: {
+                    A: 'fornecem energia para o corpo.',
+                    B: 'contribuem para o controle do peso.',
+                    C: 'auxiliam no funcionamento do organismo.',
+                    D: 'previne doenças crônicas.',
+                    E: 'aumentam a massa muscular.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '43',
+                question: 'Os alimentos processados, ricos em açúcar, sal e gorduras, devem ser evitados porque',
+                options: {
+                    A: 'são fontes de vitaminas e minerais.',
+                    B: 'contribuem para o controle do peso.',
+                    C: 'auxiliam no funcionamento do organismo.',
+                    D: 'podem causar doenças crônicas.',
+                    E: 'aumentam a energia.'
+                },
+                correctAnswer: 'D'
+            },
+            {
+                id: '44',
+                question: 'A pirâmide alimentar é um guia que auxilia na escolha de alimentos saudáveis.<br>Na base da pirâmide alimentar, encontram-se os alimentos que devem ser consumidos em maior quantidade, como',
+                options: {
+                    A: 'carnes e ovos.',
+                    B: 'pães, cereais e massas.',
+                    C: 'frutas e verduras.',
+                    D: 'leite e derivados.',
+                    E: 'óleos e gorduras.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '45',
+                question: 'A obesidade é uma doença crônica que pode ser causada por uma alimentação inadequada e pelo sedentarismo.<br>Para prevenir a obesidade, uma medida importante é',
+                options: {
+                    A: 'o consumo excessivo de alimentos calóricos.',
+                    B: 'a prática de atividades físicas regulares.',
+                    C: 'o sedentarismo.',
+                    D: 'a ingestão de bebidas açucaradas.',
+                    E: 'o consumo de alimentos processados.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '46',
+                question: 'O texto a seguir apresenta informações sobre a importância da atividade física.<br>A atividade física regular contribui para',
+                options: {
+                    A: 'o aumento do estresse.',
+                    B: 'a prevenção de doenças.',
+                    C: 'a diminuição do humor.',
+                    D: 'o enfraquecimento dos músculos.',
+                    E: 'o ganho de peso.'
+                },
+                correctAnswer: 'B',
+                image: 'https://placehold.co/600x400/DDEEFF/336699?text=Pessoas+Exercitando',
+                imageCaption: 'Pessoas exercitando-se'
+            },
+            {
+                id: '47',
+                question: 'O fortalecimento dos músculos e ossos é um benefício da atividade física porque',
+                options: {
+                    A: 'aumenta o risco de lesões.',
+                    B: 'melhora a postura e a resistência.',
+                    C: 'diminui a flexibilidade.',
+                    D: 'causa dores nas articulações.',
+                    E: 'enfraquece o sistema imunológico.'
+                },
+                correctAnswer: 'B'
+            },
+            {
+                id: '48',
+                question: 'Para iniciar uma atividade física, é fundamental consultar um médico e um profissional de educação física porque',
+                options: {
+                    A: 'eles podem indicar a melhor dieta para emagrecer.',
+                    B: 'eles podem prescrever medicamentos para dores.',
+                    C: 'eles podem orientar sobre a forma correta de praticar exercícios.',
+                    D: 'eles podem proibir a prática de atividades físicas.',
+                    E: 'eles podem indicar cirurgias para perda de peso.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '49',
+                question: 'A Organização Mundial da Saúde (OMS) recomenda que adultos pratiquem, no mínimo, 150 minutos de atividade física moderada por semana, ou 75 minutos de atividade física intensa.<br>Essa recomendação visa a',
+                options: {
+                    A: 'aumentar o sedentarismo.',
+                    B: 'diminuir a qualidade de vida.',
+                    C: 'promover a saúde e o bem-estar.',
+                    D: 'elevar o risco de doenças.',
+                    E: 'reduzir a expectativa de vida.'
+                },
+                correctAnswer: 'C'
+            },
+            {
+                id: '50',
+                question: 'A prática de atividades físicas em grupo pode trazer benefícios como',
+                options: {
+                    A: 'a socialização e o aumento da motivação.',
+                    B: 'o isolamento social e a diminuição da motivação.',
+                    C: 'a competição excessiva e o estresse.',
+                    D: 'a dependência de outras pessoas.',
+                    E: 'a falta de disciplina e o desinteresse.'
+                },
+                correctAnswer: 'A'
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const submitButton = document.getElementById('submit-quiz');
+        const resultsDiv = document.getElementById('results');
+        const scoreSummary = document.getElementById('score-summary');
+        const detailedResults = document.getElementById('detailed-results');
+
+        // Função para renderizar as questões
+        function renderQuestions() {
+            questions.forEach(q => {
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `question-${q.id}`;
+
+                const questionTitle = document.createElement('h3');
+                questionTitle.className = 'question-title';
+                questionTitle.innerHTML = `Questão ${q.id} <br>${q.question}`;
+                questionBlock.appendChild(questionTitle);
+
+                if (q.image) {
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container';
+                    const img = document.createElement('img');
+                    img.src = q.image;
+                    img.alt = q.imageCaption || `Imagem para Questão ${q.id}`;
+                    imageContainer.appendChild(img);
+                    if (q.imageCaption) {
+                        const caption = document.createElement('p');
+                        caption.className = 'image-caption';
+                        caption.textContent = q.imageCaption;
+                        imageContainer.appendChild(caption);
+                    }
+                    questionBlock.appendChild(imageContainer);
+                }
+
+                for (const optionKey in q.options) {
+                    const optionText = q.options[optionKey];
+                    const label = document.createElement('label');
+                    label.className = 'option-label';
+                    label.innerHTML = `
+                        <input type="radio" name="question-${q.id}" value="${optionKey}">
+                        <span>(${optionKey}) ${optionText}</span>
+                    `;
+                    questionBlock.appendChild(label);
+                }
+                quizContainer.appendChild(questionBlock);
+            });
+        }
+
+        // Função para verificar as respostas e exibir os resultados
+        function checkAnswers() {
+            let score = 0;
+            detailedResults.innerHTML = ''; // Limpa resultados anteriores
+
+            questions.forEach(q => {
+                const selectedOption = document.querySelector(`input[name="question-${q.id}"]:checked`);
+                const questionBlock = document.getElementById(`question-${q.id}`);
+                const optionsLabels = questionBlock.querySelectorAll('.option-label');
+
+                let userAnswer = null;
+                if (selectedOption) {
+                    userAnswer = selectedOption.value;
+                }
+
+                const resultItem = document.createElement('p');
+                resultItem.className = 'mb-2';
+                resultItem.innerHTML = `<strong>Questão ${q.id}:</strong> Sua resposta: ${userAnswer || 'Não respondida'}. Correta: ${q.correctAnswer}.`;
+
+                if (userAnswer === q.correctAnswer) {
+                    score++;
+                    resultItem.classList.add('text-green-700');
+                } else {
+                    resultItem.classList.add('text-red-700');
+                }
+                detailedResults.appendChild(resultItem);
+
+                // Highlight options
+                optionsLabels.forEach(label => {
+                    const radio = label.querySelector('input[type="radio]');
+                    label.classList.remove('correct-answer', 'incorrect-answer'); // Remove previous highlights
+
+                    if (radio.value === q.correctAnswer) {
+                        label.classList.add('correct-answer');
+                        if (userAnswer !== q.correctAnswer) {
+                             // If user answered incorrectly, show the correct one in green
+                            label.innerHTML += `<span class="correct-feedback"> (Correta)</span>`;
+                        }
+                    } else if (radio.checked && radio.value !== q.correctAnswer) {
+                        label.classList.add('incorrect-answer');
+                        label.innerHTML += `<span class="incorrect-feedback"> (Sua resposta)</span>`;
+                    }
+                    // Disable radios after checking
+                    radio.disabled = true;
+                });
+            });
+
+            scoreSummary.textContent = `Você acertou ${score} de ${questions.length} questões. Sua nota é ${score} de 50.`;
+            resultsDiv.classList.remove('hidden');
+            submitButton.disabled = true; // Disable submit button after results are shown
+            submitButton.textContent = 'Prova Finalizada';
+        }
+
+        // Renderizar as questões quando a página carregar
+        document.addEventListener('DOMContentLoaded', renderQuestions);
+
+        // Adicionar listener ao botão de finalizar prova
+        submitButton.addEventListener('click', checkAnswers);
+    </script>
+</body>
+</html>
