@@ -124,6 +124,17 @@
             color: #718096;
             margin-top: 0.5rem;
         }
+        .text-before-question {
+            background-color: #f0f4f8;
+            border-left: 4px solid #4299e1;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            font-size: 0.9rem;
+            color: #2d3748;
+        }
     </style>
 </head>
 <body>
@@ -207,7 +218,33 @@
                     D: 'a Amazônia é alvo de exploração pelo caráter único de suas riquezas, ação facilitada pela ausência de medidas efetivas de proteção.',
                     E: 'os ataques à Floresta Amazônica, além de esporádicos, acarretam consequências reversíveis e restritas à fauna local.'
                 },
-                correctAnswer: 'D'
+                correctAnswer: 'D',
+                textBeforeQuestion: `1 Maior floresta tropical da Terra
+2 a toda hora sofre um duro golpe.
+3 Contra trator, corrente, motosserra,
+4 a bela flora clama em vão: “Me poupe!”
+5 Porém tem uma gente surda e cega
+6 para a beleza e o valor da mata,
+7 embora o mundo grite que já chega,
+8 pois é a vida que o desmate mata.
+9 Mais vasta ainda todavia é a devastação e o trauma:
+10 focos de fogo nos sufocam fauna, flora e até a alma. 
+11 Amazônia!
+12 Razão de tanta insânia e tanta insônia!
+13 Objeto de omissão e ação errônea!
+14 É sem igual, sem plano B nem clone a
+15 Amazônia! 
+   [...]
+16 Dos povos da floresta sob pressão,
+17 o indígena, seu grande guardião,
+18 em comunhão com ela há milênios, 
+19 nos últimos e trágicos decênios,
+20 vem vendo a mata sendo ameaçada
+21 e cada terra deles atacada
+22 por levas de peões de poderosos
+23 com planos de riqueza horrorosos. 
+24 É invasão!, destruição!, ódio a quem são seus empecilhos!
+25 Eles não pensam no amanhã nem do planeta nem dos próprios filhos!`
             },
             {
                 id: '06',
@@ -776,6 +813,14 @@
                 questionBlock.className = 'question-block';
                 questionBlock.id = `question-${q.id}`;
 
+                // Adiciona o texto antes da questão, se existir
+                if (q.textBeforeQuestion) {
+                    const textBefore = document.createElement('div');
+                    textBefore.className = 'text-before-question';
+                    textBefore.innerHTML = q.textBeforeQuestion;
+                    questionBlock.appendChild(textBefore);
+                }
+
                 const questionTitle = document.createElement('h3');
                 questionTitle.className = 'question-title';
                 questionTitle.innerHTML = `Questão ${q.id} <br>${q.question}`;
@@ -813,55 +858,61 @@
 
         // Função para verificar as respostas e exibir os resultados
         function checkAnswers() {
-            let score = 0;
-            detailedResults.innerHTML = ''; // Limpa resultados anteriores
+            console.log("checkAnswers function called."); // Debugging line
+            try {
+                let score = 0;
+                detailedResults.innerHTML = ''; // Limpa resultados anteriores
 
-            questions.forEach(q => {
-                const selectedOption = document.querySelector(`input[name="question-${q.id}"]:checked`);
-                const questionBlock = document.getElementById(`question-${q.id}`);
-                const optionsLabels = questionBlock.querySelectorAll('.option-label');
+                questions.forEach(q => {
+                    const selectedOption = document.querySelector(`input[name="question-${q.id}"]:checked`);
+                    const questionBlock = document.getElementById(`question-${q.id}`);
+                    const optionsLabels = questionBlock.querySelectorAll('.option-label');
 
-                let userAnswer = null;
-                if (selectedOption) {
-                    userAnswer = selectedOption.value;
-                }
-
-                const resultItem = document.createElement('p');
-                resultItem.className = 'mb-2';
-                resultItem.innerHTML = `<strong>Questão ${q.id}:</strong> Sua resposta: ${userAnswer || 'Não respondida'}. Correta: ${q.correctAnswer}.`;
-
-                if (userAnswer === q.correctAnswer) {
-                    score++;
-                    resultItem.classList.add('text-green-700');
-                } else {
-                    resultItem.classList.add('text-red-700');
-                }
-                detailedResults.appendChild(resultItem);
-
-                // Highlight options
-                optionsLabels.forEach(label => {
-                    const radio = label.querySelector('input[type="radio]');
-                    label.classList.remove('correct-answer', 'incorrect-answer'); // Remove previous highlights
-
-                    if (radio.value === q.correctAnswer) {
-                        label.classList.add('correct-answer');
-                        if (userAnswer !== q.correctAnswer) {
-                             // If user answered incorrectly, show the correct one in green
-                            label.innerHTML += `<span class="correct-feedback"> (Correta)</span>`;
-                        }
-                    } else if (radio.checked && radio.value !== q.correctAnswer) {
-                        label.classList.add('incorrect-answer');
-                        label.innerHTML += `<span class="incorrect-feedback"> (Sua resposta)</span>`;
+                    let userAnswer = null;
+                    if (selectedOption) {
+                        userAnswer = selectedOption.value;
                     }
-                    // Disable radios after checking
-                    radio.disabled = true;
-                });
-            });
 
-            scoreSummary.textContent = `Você acertou ${score} de ${questions.length} questões. Sua nota é ${score} de 50.`;
-            resultsDiv.classList.remove('hidden');
-            submitButton.disabled = true; // Disable submit button after results are shown
-            submitButton.textContent = 'Prova Finalizada';
+                    const resultItem = document.createElement('p');
+                    resultItem.className = 'mb-2';
+                    resultItem.innerHTML = `<strong>Questão ${q.id}:</strong> Sua resposta: ${userAnswer || 'Não respondida'}. Correta: ${q.correctAnswer}.`;
+
+                    if (userAnswer === q.correctAnswer) {
+                        score++;
+                        resultItem.classList.add('text-green-700');
+                    } else {
+                        resultItem.classList.add('text-red-700');
+                    }
+                    detailedResults.appendChild(resultItem);
+
+                    // Highlight options
+                    optionsLabels.forEach(label => {
+                        const radio = label.querySelector('input[type="radio"]'); // Corrigido: fechamento do seletor
+                        label.classList.remove('correct-answer', 'incorrect-answer'); // Remove destaques anteriores
+
+                        if (radio.value === q.correctAnswer) {
+                            label.classList.add('correct-answer');
+                            if (userAnswer !== q.correctAnswer) {
+                                 // Se o usuário respondeu incorretamente, mostra a correta em verde
+                                label.innerHTML += `<span class="correct-feedback"> (Correta)</span>`;
+                            }
+                        } else if (radio.checked && radio.value !== q.correctAnswer) {
+                            label.classList.add('incorrect-answer');
+                            label.innerHTML += `<span class="incorrect-feedback"> (Sua resposta)</span>`;
+                        }
+                        // Desabilita os radios após a verificação
+                        radio.disabled = true;
+                    });
+                });
+
+                scoreSummary.textContent = `Você acertou ${score} de ${questions.length} questões. Sua nota é ${score} de 50.`;
+                resultsDiv.classList.remove('hidden');
+                submitButton.disabled = true; // Desabilita o botão de enviar após os resultados
+                submitButton.textContent = 'Prova Finalizada';
+            } catch (error) {
+                console.error("Erro na função checkAnswers:", error); // Registra qualquer erro no console
+                alert("Ocorreu um erro ao finalizar a prova. Por favor, verifique o console do navegador para mais detalhes."); // Alerta o usuário
+            }
         }
 
         // Renderizar as questões quando a página carregar
